@@ -13,6 +13,7 @@ const EDITOR = (() => {
 
   let unlocked = false;
   let editorEl = null;
+  let activeTab = 'projects';
 
   // ── Hash input password and compare ──────────────────────
   async function checkPassword(input) {
@@ -37,6 +38,7 @@ const EDITOR = (() => {
     localStorage.setItem('erma-site-data', JSON.stringify(data));
     showToast('Saved ✓');
     applyDataToPage(data);
+    if (document.getElementById('checklist-items')) buildChecklist();
   }
 
   // ── Load from localStorage on page load ───────────────────
@@ -173,7 +175,14 @@ const EDITOR = (() => {
     document.querySelector('.ed-tab.active').style.cssText += 'color:#fff;border-bottom-color:#fff;';
 
     buildChecklist();
-    renderTab('projects');
+    // Restore whichever tab was active, and highlight its button to match
+    renderTab(activeTab);
+    const activeBtn = document.querySelector(`.ed-tab[data-tab="${activeTab}"]`);
+    if (activeBtn) {
+      document.querySelectorAll('.ed-tab').forEach(t => { t.style.color = '#666'; t.style.borderBottomColor = 'transparent'; });
+      activeBtn.style.color = '#fff';
+      activeBtn.style.borderBottomColor = '#fff';
+    }
   }
 
   // ── Checklist ──────────────────────────────────────────────
@@ -197,6 +206,7 @@ const EDITOR = (() => {
 
   // ── Tab switcher ───────────────────────────────────────────
   function switchTab(btn, name) {
+    activeTab = name;
     document.querySelectorAll('.ed-tab').forEach(t => {
       t.style.color = '#666';
       t.style.borderBottomColor = 'transparent';
@@ -496,17 +506,19 @@ const SITE_CONFIG = ${JSON.stringify(SITE_CONFIG, null, 2)};
     renderWork: renderWorkSection,
 
     open: async () => {
-      const pw = prompt('Editor password:');
-      if(!pw) return;
-      const ok = await checkPassword(pw);
-      if(!ok) { alert('Incorrect password.'); return; }
-      unlocked = true;
+      if (unlocked && editorEl) return; // already open, don't reset anything
+      if (!unlocked) {
+        const pw = prompt('Editor password:');
+        if(!pw) return;
+        const ok = await checkPassword(pw);
+        if(!ok) { alert('Incorrect password.'); return; }
+        unlocked = true;
+      }
       buildEditor();
     },
 
     close: () => {
       if(editorEl) { editorEl.remove(); editorEl = null; }
-      buildChecklist();
     },
 
     tab: switchTab,
