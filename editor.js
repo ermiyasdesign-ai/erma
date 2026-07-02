@@ -391,6 +391,31 @@ const EDITOR = (() => {
     showToast('Image uploaded ✓');
   }
 
+  // ── Render gallery thumbnails for every visible project card ──
+  // (attachProjectHandlers was called but never defined — this was
+  // throwing after every Projects-tab render, silently breaking
+  // whatever code ran after it: success toasts, re-opening a
+  // category after adding a project, etc.)
+  function attachProjectHandlers() {
+    Object.keys(PROJECTS).forEach(cat => {
+      PROJECTS[cat].forEach((p, i) => {
+        const grid = document.getElementById(`gallery-${cat}-${i}`);
+        if (!grid) return;
+        grid.innerHTML = (p.gallery || []).map((src, j) => `
+          <div style="position:relative;aspect-ratio:4/3;border-radius:6px;overflow:hidden;background:#0a0a0a;border:1px solid #333;">
+            <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;">
+            <button onclick="EDITOR.removeGalleryImage('${cat}',${i},${j})"
+              style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.75);color:#fff;border:none;cursor:pointer;font-size:12px;line-height:1;">✕</button>
+          </div>`).join('');
+      });
+    });
+  }
+
+  function removeGalleryImage(cat, i, j) {
+    PROJECTS[cat][i].gallery.splice(j, 1);
+    attachProjectHandlers();
+  }
+
   function clearImg(cat, i) {
     PROJECTS[cat][i].img = null;
     renderTab('projects');
@@ -530,6 +555,7 @@ const SITE_CONFIG = ${JSON.stringify(SITE_CONFIG, null, 2)};
     removeProject,
     uploadImg,
     clearImg,
+    removeGalleryImage,
     uploadVideo,
     uploadGallery,
     addWork,
