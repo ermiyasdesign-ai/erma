@@ -18,6 +18,7 @@ const EDITOR = (() => {
   // ── Hash input password and compare ──────────────────────
   async function checkPassword(input) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    
     const hash = [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
     return hash === PASSWORD_HASH;
   }
