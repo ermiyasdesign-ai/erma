@@ -300,7 +300,10 @@ const EDITOR = (() => {
           Or upload MP4 file
           <input type="file" accept="video/mp4,video/*" style="display:none;" onchange="EDITOR.uploadVideo(event,'${cat}',${i})">
         </label>
-        ${p.video ? `<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:#22c55e;margin-top:6px;">✓ Video set</div>` : ''}
+        ${p.video ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+          <span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#22c55e;">✓ Video set</span>
+          <button onclick="EDITOR.clearVideo('${cat}',${i})" style="background:none;border:none;color:#ef4444;font-size:11px;cursor:pointer;font-family:JetBrains Mono,monospace;">✕ Remove Video</button>
+        </div>` : ''}
       </div>` : ''}
 
       <!-- Gallery images -->
@@ -353,7 +356,7 @@ const EDITOR = (() => {
         2. Create a new form → copy your Form ID (looks like <code style="background:#0a0a0a;padding:2px 6px;border-radius:4px;color:#a78bfa;">xpwdabcd</code>)<br>
         3. Paste it below — messages will go to your email
       </div>
-      ${FIELD('Formspree Form ID', 'si-formspree', SITE_CONFIG.formspreeId !== 'YOUR_FORMSPREE_ID' ? SITE_CONFIG.formspreeId : '', 'xpwdabcd')}
+      ${FIELD('Formspree Form ID (just the ID, e.g. xqevyvvv — not the full URL)', 'si-formspree', SITE_CONFIG.formspreeId !== 'YOUR_FORMSPREE_ID' ? SITE_CONFIG.formspreeId : '', 'xpwdabcd')}
     </div>
     <div style="background:#1a0a0a;border:1px solid #3a1515;border-radius:10px;padding:14px 16px;">
       <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:#ef4444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Change Editor Password</div>
@@ -418,6 +421,11 @@ const EDITOR = (() => {
 
   function clearImg(cat, i) {
     PROJECTS[cat][i].img = null;
+    renderTab('projects');
+  }
+
+  function clearVideo(cat, i) {
+    PROJECTS[cat][i].video = null;
     renderTab('projects');
   }
 
@@ -555,6 +563,7 @@ const SITE_CONFIG = ${JSON.stringify(SITE_CONFIG, null, 2)};
     removeProject,
     uploadImg,
     clearImg,
+    clearVideo,
     removeGalleryImage,
     uploadVideo,
     uploadGallery,
