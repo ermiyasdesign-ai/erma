@@ -279,11 +279,17 @@ async function handleSubmit(e) {
     return;
   }
 
+  // Accept either a bare ID ("xqevyvvv") or a full URL
+  // ("https://formspree.io/f/xqevyvvv") — whatever got pasted in.
+  const formspreeUrl = /^https?:\/\//.test(formspreeId)
+    ? formspreeId
+    : `https://formspree.io/f/${formspreeId.replace(/^\/?f\//, '')}`;
+
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
   try {
-    const res = await fetch(`https://formspree.io/f/${formspreeId}`, {
+    const res = await fetch(formspreeUrl, {
       method: 'POST',
       headers: { 'Accept': 'application/json' },
       body: new FormData(form)
